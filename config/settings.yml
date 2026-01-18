@@ -1,0 +1,66 @@
+# Configuration de l'outil de cybersécurité web
+# Format YAML pour la configuration des scanners
+
+# Configuration générale
+general:
+  max_threads: 20
+  default_timeout: 10
+  rate_limit: 0.5  # Délai entre requêtes (secondes)
+  user_agent: "CyberSecTool/1.0"
+  
+# Configuration SQL Injection Scanner
+sql_injection:
+  enabled: true
+  max_payloads: 10
+  custom_payloads: []
+  error_patterns:
+    - "SQL syntax"
+    - "mysql_"
+    - "PostgreSQL"
+    - "ORA-"
+    
+# Configuration XSS Scanner  
+xss:
+  enabled: true
+  test_reflected: true
+  test_stored: false
+  custom_payloads: []
+  # Force CSS-only visual proofs for XSS (no inline JS)
+  force_css_only: false
+  
+# Configuration Header Security Scanner
+headers:
+  enabled: true
+  check_missing: true
+  check_weak: true
+  check_information_disclosure: true
+  required_headers:
+    - "Strict-Transport-Security"
+    - "Content-Security-Policy"
+    - "X-Frame-Options"
+    - "X-Content-Type-Options"
+    
+# Configuration Port Scanner
+ports:
+  enabled: true
+  default_ports: [80, 443, 22, 21, 25, 53, 110, 143, 993, 995, 3389]
+  max_port_range: 1000
+  connect_timeout: 3
+  
+# Configuration Directory Buster
+directory_buster:
+  enabled: true
+  max_depth: 2
+  common_extensions: [".php", ".asp", ".jsp", ".html", ".txt", ".bak"]
+  skip_large_responses: true
+  max_response_size: 1048576  # 1MB
+  
+# Configuration des rapports
+reporting:
+  include_timestamps: true
+  include_recommendations: true
+  severity_colors:
+    high: "#dc3545"
+    medium: "#ffc107" 
+    low: "#17a2b8"
+    info: "#28a745"

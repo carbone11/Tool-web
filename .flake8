@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 120
+extend-ignore = E203, W503, W293, E401
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    reports,
+    venv,
+    env
+per-file-ignores =
+    menu_cli_old.py: F821,E501,W293
+    main_old.py: E501,W293
+    tests/*: E501,F401

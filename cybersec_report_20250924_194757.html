@@ -1,0 +1,1178 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Sécurité Web - https://cuisine.fr</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .target-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 5px;
+            display: inline-block;
+            text-align: left;
+        }
+        
+        .risk-critique { color: #dc3545; font-weight: bold; }
+        .risk-élevé { color: #fd7e14; font-weight: bold; }
+        .risk-moyen { color: #ffc107; font-weight: bold; }
+        .risk-faible { color: #28a745; font-weight: bold; }
+        .risk-minimal { color: #6c757d; font-weight: bold; }
+        
+        .summary {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+        
+        .summary-card.critical { border-left-color: #dc3545; }
+        .summary-card.warning { border-left-color: #ffc107; }
+        .summary-card.info { border-left-color: #17a2b8; }
+        
+        .big-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+        
+        .module-section {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .module-section h2 {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .module-summary {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .module-summary ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        
+        .module-summary li {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .vulnerabilities {
+            padding: 20px;
+        }
+        
+        .vulnerability {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .vulnerability.high {
+            border-left: 5px solid #dc3545;
+        }
+        
+        .vulnerability.medium {
+            border-left: 5px solid #ffc107;
+        }
+        
+        .vulnerability.low {
+            border-left: 5px solid #17a2b8;
+        }
+        
+        .vuln-header {
+            background: #f8f9fa;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .vuln-number {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: center;
+        }
+        
+        .vuln-type {
+            flex: 1;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .severity-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8em;
+        }
+        
+        .severity-badge.high { background: #dc3545; }
+        .severity-badge.medium { background: #ffc107; color: #333; }
+        .severity-badge.low { background: #17a2b8; }
+        
+        .vuln-details {
+            padding: 20px;
+        }
+        
+        .vuln-details p {
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .found-paths, .open-ports {
+            padding: 20px;
+        }
+        
+        details {
+            margin-top: 10px;
+        }
+        
+        summary {
+            cursor: pointer;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            margin-top: 30px;
+        }
+        
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vuln-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛡️ Rapport de Sécurité Web</h1>
+            <div class="target-info">
+                <strong>Cible:</strong> https://cuisine.fr<br>
+                <strong>Date:</strong> 24/09/2025 19:47:57<br>
+                <strong>Niveau de risque:</strong> <span class="risk-critique">Critique</span>
+            </div>
+        </header>
+        
+        <section class="summary">
+            <h2>📊 Résumé Exécutif</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Vulnérabilités Totales</h3>
+                    <div class="big-number">59</div>
+                </div>
+                <div class="summary-card critical">
+                    <h3>Critiques</h3>
+                    <div class="big-number">10</div>
+                </div>
+                <div class="summary-card warning">
+                    <h3>Moyennes</h3>
+                    <div class="big-number">34</div>
+                </div>
+                <div class="summary-card info">
+                    <h3>Faibles</h3>
+                    <div class="big-number">15</div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="module-section">
+            <h2>💉 Test d'Injection SQL</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Total Tests:</strong> 270</li><li><strong>Vulnerable Params:</strong> 0</li><li><strong>Vulnerable Forms:</strong> 0</li></ul></div>
+        </section>
+            
+        <section class="module-section">
+            <h2>🔗 Test de Cross-Site Scripting (XSS)</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Total Tests:</strong> 270</li><li><strong>Vulnerable Params:</strong> 0</li><li><strong>Vulnerable Forms:</strong> 6</li></ul></div><div class='vulnerabilities'><h3>🚨 Vulnérabilités Détectées (27)</h3>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#1</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;s&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> s</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/</p><p><strong>Méthode:</strong> GET</p><details><summary>Évidence</summary><pre>&lt;meta charset=&quot;UTF-8&quot; /&gt;
+	&lt;style&gt;img:is([sizes=&quot;auto&quot; i], [sizes^=&quot;auto,&quot; i]) { contain-intrinsic-size: 3000px 1500px }&lt;/style&gt;
+	&lt;link rel=&quot;alternate&quot; hreflang=&quot;fr-FR&quot; href=&quot;https://www.recettes.com/?s=%3Cscript%3Ealert%28%27XSS%27%29%3C%2Fscript%3E&quot;/&gt;
+&lt;meta name=&quot;format-detection&quot; content=&quot;telephone=no&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, maximum-scale=1&quot; /&gt;</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#2</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;username&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> username</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#3</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;password&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> password</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#4</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;rememberme&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> rememberme</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#5</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;woocommerce-login-nonce&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> woocommerce-login-nonce</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#6</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;_wp_http_referer&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> _wp_http_referer</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#7</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;redirect&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> redirect</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#8</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;s&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> s</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/</p><p><strong>Méthode:</strong> GET</p><details><summary>Évidence</summary><pre>&lt;meta charset=&quot;UTF-8&quot; /&gt;
+	&lt;style&gt;img:is([sizes=&quot;auto&quot; i], [sizes^=&quot;auto,&quot; i]) { contain-intrinsic-size: 3000px 1500px }&lt;/style&gt;
+	&lt;link rel=&quot;alternate&quot; hreflang=&quot;fr-FR&quot; href=&quot;https://www.recettes.com/?s=%3Cscript%3Ealert%28%27XSS%27%29%3C%2Fscript%3E&quot;/&gt;
+&lt;meta name=&quot;format-detection&quot; content=&quot;telephone=no&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, maximum-scale=1&quot; /&gt;</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#9</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;username&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> username</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#10</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;password&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> password</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#11</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;rememberme&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> rememberme</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#12</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;woocommerce-login-nonce&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> woocommerce-login-nonce</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#13</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;_wp_http_referer&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> _wp_http_referer</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#14</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;redirect&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> redirect</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#15</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;data[form_id]&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> data[form_id]</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#16</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;token&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> token</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#17</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;api_version&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> api_version</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#18</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;endpoint&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> endpoint</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#19</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;mailpoet_method&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> mailpoet_method</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#20</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;data[email]&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> data[email]</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#21</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;data[form_field_NDQ4ZTIyNTMxNmI2X2VtYWls]&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> data[form_field_NDQ4ZTIyNTMxNmI2X2VtYWls]</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://www.recettes.com/wp-admin/admin-post.php?action=mailpoet_subscription_form</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#22</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;username&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> username</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#23</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;password&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> password</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#24</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;rememberme&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> rememberme</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#25</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;woocommerce-login-nonce&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> woocommerce-login-nonce</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#26</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;_wp_http_referer&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> _wp_http_referer</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#27</span>
+                        <span class="vuln-type">Cross-Site Scripting (XSS)</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> XSS réfléchi détecté dans le champ &quot;redirect&quot; du formulaire</p>
+                <p><strong>Paramètre:</strong> redirect</p><p><strong>Payload:</strong> <code>&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</code></p><p><strong>URL:</strong> https://cuisine.fr/</p><p><strong>Méthode:</strong> POST</p><details><summary>Évidence</summary><pre>&lt;meta name=&quot;theme-color&quot; content=&quot;#ffffff&quot; media=&quot;(prefers-color-scheme: dark)&quot;&gt;
+&lt;!-- Google tag (gtag.js) Consent Mode dataLayer added by Site Kit --&gt;
+&lt;script type=&quot;text/javascript&quot; id=&quot;google_gtagjs-js-consent-mode-data-layer&quot;&gt;
+/* &lt;![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</pre></details></div></div></div>
+        </section>
+            
+        <section class="module-section">
+            <h2>🔒 Analyse des En-têtes de Sécurité</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Missing Headers:</strong> 6</li><li><strong>Weak Headers:</strong> 0</li><li><strong>Information Disclosure:</strong> 1</li><li><strong>Total Checks:</strong> 10</li></ul></div><div class='vulnerabilities'><h3>🚨 Vulnérabilités Détectées (9)</h3>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#1</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: Strict-Transport-Security</p>
+                <p><strong>En-tête:</strong> Strict-Transport-Security</p><p><strong>Recommandation:</strong> Ajouter: Strict-Transport-Security: max-age=31536000; includeSubDomains</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#2</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: Content-Security-Policy</p>
+                <p><strong>En-tête:</strong> Content-Security-Policy</p><p><strong>Recommandation:</strong> Implémenter une politique CSP stricte</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#3</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: X-Frame-Options</p>
+                <p><strong>En-tête:</strong> X-Frame-Options</p><p><strong>Recommandation:</strong> Ajouter: X-Frame-Options: DENY ou SAMEORIGIN</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#4</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: X-Content-Type-Options</p>
+                <p><strong>En-tête:</strong> X-Content-Type-Options</p><p><strong>Recommandation:</strong> Ajouter: X-Content-Type-Options: nosniff</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#5</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: Referrer-Policy</p>
+                <p><strong>En-tête:</strong> Referrer-Policy</p><p><strong>Recommandation:</strong> Ajouter: Referrer-Policy: strict-origin-when-cross-origin</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#6</span>
+                        <span class="vuln-type">Missing Security Header</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> En-tête de sécurité manquant: Permissions-Policy</p>
+                <p><strong>En-tête:</strong> Permissions-Policy</p><p><strong>Recommandation:</strong> Implémenter une politique de permissions restrictive</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#7</span>
+                        <span class="vuln-type">Information Disclosure</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Divulgation d&#x27;information: Expose le type et version du serveur</p>
+                <p><strong>En-tête:</strong> Server</p><p><strong>Recommandation:</strong> Supprimer ou masquer l&#x27;en-tête Server</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#8</span>
+                        <span class="vuln-type">Outdated HTTP Version</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Version HTTP obsolète: HTTP/1.1</p>
+                <p><strong>Recommandation:</strong> Migrer vers HTTP/2 ou HTTP/3</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#9</span>
+                        <span class="vuln-type">Potential BREACH Vulnerability</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Compression activée sur HTTPS (risque BREACH)</p>
+                <p><strong>Recommandation:</strong> Éviter la compression de contenu contenant des secrets</p></div></div></div>
+        </section>
+            
+        <section class="module-section">
+            <h2>🔍 Scan de Ports</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Total Ports Scanned:</strong> 20</li><li><strong>Open Ports:</strong> 4</li><li><strong>Closed Ports:</strong> 16</li><li><strong>Filtered Ports:</strong> 0</li></ul></div><div class='open-ports'><h3>🔓 Ports Ouverts (4)</h3><table><tr><th>Port</th><th>Service</th><th>Temps de réponse</th><th>Banner</th></tr>
+                <tr>
+                    <td>80</td>
+                    <td>HTTP</td>
+                    <td>10.0ms</td>
+                    <td><code>HTTP/1.1 400 Bad Request
+Server: cloudflare
+Date</code></td>
+                </tr>
+                
+                <tr>
+                    <td>443</td>
+                    <td>HTTPS</td>
+                    <td>9.1ms</td>
+                    <td><code>HTTP/1.1 400 Bad Request
+Server: cloudflare
+Date</code></td>
+                </tr>
+                
+                <tr>
+                    <td>8080</td>
+                    <td>HTTP-Alt</td>
+                    <td>15.5ms</td>
+                    <td><code>HTTP/1.1 400 Bad Request
+Server: cloudflare
+Date</code></td>
+                </tr>
+                
+                <tr>
+                    <td>8443</td>
+                    <td>HTTPS-Alt</td>
+                    <td>8.6ms</td>
+                    <td><code>HTTP/1.1 400 Bad Request
+Server: cloudflare
+Date</code></td>
+                </tr>
+                </table></div>
+        </section>
+            
+        <section class="module-section">
+            <h2>📁 Découverte de Répertoires</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Total Requests:</strong> 311</li><li><strong>Found Directories:</strong> 7</li><li><strong>Found Files:</strong> 64</li><li><strong>Interesting Responses:</strong> 23</li></ul></div><div class='vulnerabilities'><h3>🚨 Vulnérabilités Détectées (23)</h3>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#1</span>
+                        <span class="vuln-type">Administrative Interface Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Interface d&#x27;administration accessible: /admin/</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin/</p><p><strong>Chemin:</strong> /admin/</p><p><strong>Recommandation:</strong> Sécuriser l&#x27;accès à l&#x27;interface d&#x27;administration</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#2</span>
+                        <span class="vuln-type">Administrative Interface Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Interface d&#x27;administration accessible: /admin</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin</p><p><strong>Chemin:</strong> /admin</p><p><strong>Recommandation:</strong> Sécuriser l&#x27;accès à l&#x27;interface d&#x27;administration</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#3</span>
+                        <span class="vuln-type">Administrative Interface Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Interface d&#x27;administration accessible: /wp-admin/</p>
+                <p><strong>URL:</strong> https://cuisine.fr/wp-admin/</p><p><strong>Chemin:</strong> /wp-admin/</p><p><strong>Recommandation:</strong> Sécuriser l&#x27;accès à l&#x27;interface d&#x27;administration</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#4</span>
+                        <span class="vuln-type">Administrative Interface Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Interface d&#x27;administration accessible: /wp-admin</p>
+                <p><strong>URL:</strong> https://cuisine.fr/wp-admin</p><p><strong>Chemin:</strong> /wp-admin</p><p><strong>Recommandation:</strong> Sécuriser l&#x27;accès à l&#x27;interface d&#x27;administration</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#5</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier robots.txt accessible - peut révéler des chemins sensibles</p>
+                <p><strong>URL:</strong> https://cuisine.fr/robots.txt</p><p><strong>Chemin:</strong> /robots.txt</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier robots.txt</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#6</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier .htaccess accessible - configuration Apache exposée</p>
+                <p><strong>URL:</strong> https://cuisine.fr/.htaccess</p><p><strong>Chemin:</strong> /.htaccess</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier .htaccess</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#7</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier web.config accessible - configuration IIS exposée</p>
+                <p><strong>URL:</strong> https://cuisine.fr/web.config</p><p><strong>Chemin:</strong> /web.config</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier web.config</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#8</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier de sauvegarde SQL accessible</p>
+                <p><strong>URL:</strong> https://cuisine.fr/backup.sql</p><p><strong>Chemin:</strong> /backup.sql</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier backup.sql</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#9</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier .env accessible - variables d&#x27;environnement exposées</p>
+                <p><strong>URL:</strong> https://cuisine.fr/.env</p><p><strong>Chemin:</strong> /.env</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier .env</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#10</span>
+                        <span class="vuln-type">Version Control Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire de contrôle de version exposé: .git</p>
+                <p><strong>URL:</strong> https://cuisine.fr/.git/config</p><p><strong>Chemin:</strong> /.git/config</p><p><strong>Recommandation:</strong> Bloquer l&#x27;accès aux répertoires de contrôle de version</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#11</span>
+                        <span class="vuln-type">Version Control Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire de contrôle de version exposé: .svn</p>
+                <p><strong>URL:</strong> https://cuisine.fr/.svn/entries</p><p><strong>Chemin:</strong> /.svn/entries</p><p><strong>Recommandation:</strong> Bloquer l&#x27;accès aux répertoires de contrôle de version</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#12</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /admin.php</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin.php</p><p><strong>Chemin:</strong> /admin.php</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#13</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Page phpinfo accessible - informations système exposées</p>
+                <p><strong>URL:</strong> https://cuisine.fr/phpinfo.php</p><p><strong>Chemin:</strong> /phpinfo.php</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier phpinfo.php</p></div></div>
+                <div class="vulnerability medium">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#14</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge medium">Medium</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier de log d&#x27;erreurs accessible</p>
+                <p><strong>URL:</strong> https://cuisine.fr/error.log</p><p><strong>Chemin:</strong> /error.log</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier error.log</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#15</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /admin.bak</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin.bak</p><p><strong>Chemin:</strong> /admin.bak</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#16</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /admin.conf</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin.conf</p><p><strong>Chemin:</strong> /admin.conf</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#17</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /admin.sql</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin.sql</p><p><strong>Chemin:</strong> /admin.sql</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#18</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /admin.log</p>
+                <p><strong>URL:</strong> https://cuisine.fr/admin.log</p><p><strong>Chemin:</strong> /admin.log</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#19</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /administrator.bak</p>
+                <p><strong>URL:</strong> https://cuisine.fr/administrator.bak</p><p><strong>Chemin:</strong> /administrator.bak</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#20</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /administrator.conf</p>
+                <p><strong>URL:</strong> https://cuisine.fr/administrator.conf</p><p><strong>Chemin:</strong> /administrator.conf</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#21</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /administrator.sql</p>
+                <p><strong>URL:</strong> https://cuisine.fr/administrator.sql</p><p><strong>Chemin:</strong> /administrator.sql</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability low">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#22</span>
+                        <span class="vuln-type">Sensitive Directory Existence</span>
+                        <span class="severity-badge low">Low</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Répertoire sensible détecté (403): /administrator.log</p>
+                <p><strong>URL:</strong> https://cuisine.fr/administrator.log</p><p><strong>Chemin:</strong> /administrator.log</p><p><strong>Recommandation:</strong> Vérifier la nécessité et la sécurisation du répertoire</p></div></div>
+                <div class="vulnerability high">
+                    <div class="vuln-header">
+                        <span class="vuln-number">#23</span>
+                        <span class="vuln-type">Sensitive File Exposure</span>
+                        <span class="severity-badge high">High</span>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>Description:</strong> Fichier de sauvegarde SQL accessible</p>
+                <p><strong>URL:</strong> https://cuisine.fr/backup.sql</p><p><strong>Chemin:</strong> /backup.sql</p><p><strong>Recommandation:</strong> Restreindre l&#x27;accès au fichier backup.sql</p></div></div></div><div class='found-paths'><h3>📂 Chemins Découverts (71)</h3><table><tr><th>Chemin</th><th>Type</th><th>Status</th><th>Taille</th></tr>
+                <tr>
+                    <td><a href="https://cuisine.fr/admin/" target="_blank">/admin/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>10150 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/admin" target="_blank">/admin</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>10150 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/login/" target="_blank">/login/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>10053 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/login" target="_blank">/login</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>10053 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/conf/" target="_blank">/conf/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>0 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/conf" target="_blank">/conf</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>0 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/img/" target="_blank">/img/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>447193 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/img" target="_blank">/img</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>447193 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-admin/" target="_blank">/wp-admin/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>10150 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-admin" target="_blank">/wp-admin</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>10150 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-content/" target="_blank">/wp-content/</a></td>
+                    <td>directory</td>
+                    <td>200</td>
+                    <td>0 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-content" target="_blank">/wp-content</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>0 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-includes/" target="_blank">/wp-includes/</a></td>
+                    <td>directory</td>
+                    <td>403</td>
+                    <td>548 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/wp-includes" target="_blank">/wp-includes</a></td>
+                    <td>file</td>
+                    <td>403</td>
+                    <td>548 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/robots.txt" target="_blank">/robots.txt</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>1677 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/sitemap.xml" target="_blank">/sitemap.xml</a></td>
+                    <td>file</td>
+                    <td>200</td>
+                    <td>6487 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/.htaccess" target="_blank">/.htaccess</a></td>
+                    <td>file</td>
+                    <td>403</td>
+                    <td>6128 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/web.config" target="_blank">/web.config</a></td>
+                    <td>file</td>
+                    <td>403</td>
+                    <td>6153 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/backup.sql" target="_blank">/backup.sql</a></td>
+                    <td>file</td>
+                    <td>403</td>
+                    <td>146 bytes</td>
+                </tr>
+                
+                <tr>
+                    <td><a href="https://cuisine.fr/dump.sql" target="_blank">/dump.sql</a></td>
+                    <td>file</td>
+                    <td>403</td>
+                    <td>146 bytes</td>
+                </tr>
+                <tr><td colspan='4'>... et 51 autres</td></tr></table></div>
+        </section>
+            
+        <section class="module-section">
+            <h2>↪️ Open Redirect & Path Traversal</h2>
+            <div class='module-summary'><h3>📈 Résumé</h3><ul><li><strong>Total Tests:</strong> 0</li><li><strong>Vulnerable Params Redirect:</strong> 0</li><li><strong>Vulnerable Params Traversal:</strong> 0</li></ul></div>
+        </section>
+            
+        
+        <footer class="footer">
+            <p>Rapport généré par CyberSec Web Testing Tool v1.0.0</p>
+            <p><strong>⚠️ Ce rapport est destiné uniquement aux tests autorisés</strong></p>
+        </footer>
+    </div>
+</body>
+</html>
